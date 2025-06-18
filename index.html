@@ -134,15 +134,19 @@
       width: 200px !important;
       height: 200px !important;
     }
+
+    /* === Dark Mode Styles === */
     .dark-mode {
       background-color: #111827;
       color: #f9fafb;
     }
+
     .dark-mode .form-section,
     .dark-mode .qr-container {
       background-color: #1f2937;
       color: #f9fafb;
     }
+
     .dark-mode select,
     .dark-mode textarea,
     .dark-mode input[type="file"],
@@ -152,16 +156,20 @@
       color: #f9fafb;
       border-color: #4b5563;
     }
+
     .dark-mode button {
       background-color: var(--primary);
       color: #fff;
     }
+
     .dark-mode .qr-container button {
       background-color: var(--secondary);
     }
+
     .dark-mode footer {
       color: #9ca3af;
     }
+
     .dark-mode footer hr {
       border-top-color: #374151;
     }
@@ -169,21 +177,231 @@
 </head>
 <body>
   <h2>🚀 Prcuisa QR Code Generator</h2>
+
   <div style="text-align: center; margin-bottom: 1rem;">
     <label>
       <input type="checkbox" id="themeToggle" />
       🌙 Aktifkan Dark Mode
     </label>
   </div>
+
   <div class="form-section">
-    <!-- Content as previously given (omitted to fit length limits) -->
+    <label for="logoInput">🖼️ Upload Logo (opsional)</label>
+    <input type="file" id="logoInput" accept="image/*" />
+
+    <label for="logoSizeRange">🔧 Ukuran Logo (max 80%)</label>
+    <input type="range" id="logoSizeRange" min="0.05" max="0.8" step="0.01" value="0.5" />
+    <small>Ukuran Logo: <span id="logoSizeLabel">50%</span></small>
+
+    <label for="sizeSelect">📏 Ukuran QR Code (px)</label>
+    <select id="sizeSelect">
+      <option value="150">150 x 150</option>
+      <option value="200">200 x 200</option>
+      <option value="300">300 x 300</option>
+      <option value="500" selected>500 x 500 (HD)</option>
+    </select>
+
+    <label for="dotStyleSelect">🎨 Gaya Titik QR</label>
+    <select id="dotStyleSelect">
+      <option value="rounded" selected>Rounded</option>
+      <option value="dots">Dots</option>
+      <option value="classy">Classy</option>
+      <option value="square">Square</option>
+    </select>
+
+    <label for="cornerStyleSelect">🧩 Gaya Sudut QR</label>
+    <select id="cornerStyleSelect">
+      <option value="square">Square</option>
+      <option value="dot">Dot</option>
+      <option value="extra-rounded" selected>Extra Rounded</option>
+    </select>
+
+    <label for="urlPattern">🧬 Pola Dynamic URL (gunakan {param})</label>
+    <input type="text" id="urlPattern" placeholder="https://example.com/register?branch={branch}&code={referral}" />
+
+    <label for="csvInput">📄 Data CSV (dipisah koma, satu per baris)</label>
+    <textarea id="csvInput" placeholder="branch1,codeA&#10;branch2,codeB"></textarea>
+    <small>Kolom harus cocok dengan placeholder dalam pola</small>
+
+    <label for="urlInput">🔗 Atau Masukkan URL Manual (satu per baris)</label>
+    <textarea id="urlInput" placeholder="https://example.com"></textarea>
+
+    <div class="button-group">
+      <button onclick="generateQRCodes()">🎨 Generate QR Codes</button>
+      <button onclick="downloadAll()">⬇️ Download All</button>
+      <button onclick="downloadAllZip()">📦 Download ZIP</button>
+    </div>
+
+    <div id="loading">
+      <div class="spinner"></div>
+      <p>Menghasilkan QR Code...</p>
+    </div>
   </div>
+
+  <div id="qr-codes"></div>
+
   <footer>
     <hr />
     © 2025 · Design and Develop by <strong style="color:#7c3aed;">Prcuisa Labs</strong> — <span style="color:#3b82f6;">Ecsa Ahcri Pracasa</span>
   </footer>
+
   <script>
-    // JavaScript handled in your original content
+    let logoDataURL = null;
+    const qrCodes = [];
+
+    document.getElementById("logoInput").addEventListener("change", function (e) {
+      const file = e.target.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = function (event) {
+          logoDataURL = event.target.result;
+        };
+        reader.readAsDataURL(file);
+      } else {
+        logoDataURL = null;
+      }
+    });
+
+    async function generateQRCodes() {
+      let urls = [];
+
+      const pattern = document.getElementById("urlPattern").value.trim();
+      const csvData = document.getElementById("csvInput").value.trim();
+      const staticUrls = document.getElementById("urlInput").value.trim();
+
+      if (pattern && csvData) {
+        const lines = csvData.split("\n").map(line => line.trim()).filter(line => line !== "");
+        const headers = [...pattern.matchAll(/{(\w+)}/g)].map(m => m[1]);
+
+        lines.forEach(line => {
+          const values = line.split(",");
+          if (values.length === headers.length) {
+            let url = pattern;
+            headers.forEach((key, i) => {
+              url = url.replace(`{${key}}`, encodeURIComponent(values[i]));
+            });
+            urls.push(url);
+          }
+        });
+      } else if (staticUrls) {
+        urls = staticUrls.split("\n").map(u => u.trim()).filter(u => u !== "");
+      } else {
+        alert("Masukkan URL langsung atau isi pola + data CSV!");
+        return;
+      }
+
+      const size = parseInt(document.getElementById("sizeSelect").value);
+      const dotStyle = document.getElementById("dotStyleSelect").value;
+      const cornerStyle = document.getElementById("cornerStyleSelect").value;
+      const logoSize = parseFloat(document.getElementById("logoSizeRange").value);
+
+      const qrContainer = document.getElementById("qr-codes");
+      const loading = document.getElementById("loading");
+
+      qrContainer.innerHTML = "";
+      qrCodes.length = 0;
+      loading.style.display = "block";
+
+      for (let index = 0; index < urls.length; index++) {
+        const url = urls[index];
+
+        const qrCode = new QRCodeStyling({
+          width: size,
+          height: size,
+          data: url,
+          image: logoDataURL,
+          dotsOptions: { color: "#000", type: dotStyle },
+          cornersSquareOptions: { type: cornerStyle },
+          imageOptions: {
+            crossOrigin: "anonymous",
+            margin: size * 0.01,
+            imageSize: logoSize,
+          },
+        });
+
+        const container = document.createElement("div");
+        container.className = "qr-container";
+
+        const qrWrapper = document.createElement("div");
+        await qrCode.append(qrWrapper);
+
+        const label = document.createElement("p");
+        label.textContent = url;
+
+        const btn = document.createElement("button");
+        btn.textContent = "Download";
+        btn.onclick = () => {
+          const cleanName = sanitizeFileName(url);
+          qrCode.download({ name: `qr_${cleanName}`, extension: "png" });
+        };
+
+        container.appendChild(qrWrapper);
+        container.appendChild(label);
+        container.appendChild(btn);
+
+        qrContainer.appendChild(container);
+        qrCodes.push(qrCode);
+      }
+      loading.style.display = "none";
+    }
+
+    function sanitizeFileName(url) {
+      return url.replace(/^https?:\/\//, "").replace(/[^a-z0-9]/gi, "_").toLowerCase().slice(0, 50);
+    }
+
+    function downloadAll() {
+      const urls = document.getElementById("urlInput").value.split("\n").map(u => u.trim()).filter(u => u !== "");
+      qrCodes.forEach((qr, index) => {
+        const name = sanitizeFileName(urls[index] || "qr_" + index);
+        qr.download({ name: `qr_${name}`, extension: "png" });
+      });
+    }
+
+    async function downloadAllZip() {
+      if (qrCodes.length === 0) {
+        alert("Belum ada QR code untuk diunduh.");
+        return;
+      }
+
+      const zip = new JSZip();
+      const urls = document.getElementById("urlInput").value.split("\n").map(u => u.trim()).filter(u => u !== "");
+
+      for (let i = 0; i < qrCodes.length; i++) {
+        const qr = qrCodes[i];
+        const url = urls[i] || `qr_${i}`;
+        const blob = await qr.getRawData("png");
+        const filename = `qr_${sanitizeFileName(url)}.png`;
+        zip.file(filename, blob);
+      }
+
+      const zipBlob = await zip.generateAsync({ type: "blob" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(zipBlob);
+      a.download = "qr_codes.zip";
+      a.click();
+    }
+
+    // Update logo size label
+    const logoSizeRange = document.getElementById("logoSizeRange");
+    const logoSizeLabel = document.getElementById("logoSizeLabel");
+    logoSizeRange.addEventListener("input", () => {
+      const percent = Math.round(parseFloat(logoSizeRange.value) * 100);
+      logoSizeLabel.textContent = `${percent}%`;
+    });
+
+    // Dark mode toggle
+    const themeToggle = document.getElementById("themeToggle");
+    if (localStorage.getItem("theme") === "dark") {
+      document.body.classList.add("dark-mode");
+      themeToggle.checked = true;
+    }
+
+    themeToggle.addEventListener("change", () => {
+      document.body.classList.toggle("dark-mode", themeToggle.checked);
+      localStorage.setItem("theme", themeToggle.checked ? "dark" : "light");
+    });
+
+    logoSizeLabel.textContent = `${Math.round(parseFloat(logoSizeRange.value) * 100)}%`;
   </script>
 </body>
 </html>
