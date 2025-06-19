@@ -216,15 +216,15 @@
       <option value="extra-rounded" selected>Extra Rounded</option>
     </select>
 
-    <label for="urlPattern">🧬 Pola Dynamic URL (gunakan {param}) - https://bmri.id/reflivin?cabang={branch}&code={referral}"</label>
-    <input type="text" id="urlPattern" placeholder="https://bmri.id/reflivin?cabang={branch}&code={referral}" />
+    <label for="urlPattern">🧬 Pola Dynamic URL https://bmri.id/reflivin?deep_link_sub1={param}&deep_link_sub2={param}""</label>
+    <input type="text" id="urlPattern" placeholder="https://bmri.id/reflivin?deep_link_sub1={cabang}&deep_link_sub2={referral}" />
 
     <label for="csvInput">📄 Data CSV (dipisah koma, satu per baris)</label>
-    <textarea id="csvInput" placeholder="branch1,codeA&#10;branch2,codeB"></textarea>
+    <textarea id="csvInput" placeholder="branch1,codeA&#10;branch2,codeB&#10;dst"></textarea>
     <small>Kolom harus cocok dengan placeholder dalam pola</small>
 
     <label for="urlInput">🔗 Atau Masukkan URL Manual (satu per baris)</label>
-    <textarea id="urlInput" placeholder="https://example.com"></textarea>
+    <textarea id="urlInput" placeholder="https://bmri.id/testdp?deep_link_sub1=11111&deep_link_sub2=121212&#10;https://bmri.id/testdp?deep_link_sub1=11111&deep_link_sub2=121212&#10;dst"></textarea>
 
     <div class="button-group">
       <button onclick="generateQRCodes()">🎨 Generate QR Codes</button>
