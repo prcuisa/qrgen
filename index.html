@@ -1,249 +1,563 @@
-<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8">
   <title>Prcuisa QR Code Generator</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet" />
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <script src="https://cdn.jsdelivr.net/npm/jszip@3.7.1/dist/jszip.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/qr-code-styling@1.5.0/lib/qr-code-styling.js"></script>
   <style>
     :root {
       --primary: #7c3aed;
+      --primary-light: #8b5cf6;
+      --primary-dark: #6d28d9;
       --secondary: #3b82f6;
+      --secondary-light: #60a5fa;
       --background: #f9fafb;
-      --dark: #1f2937;
+      --surface: #ffffff;
+      --text-primary: #1f2937;
+      --text-secondary: #6b7280;
+      --border: #e5e7eb;
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
     }
-    * { box-sizing: border-box; }
+
+    .dark-mode {
+      --primary: #8b5cf6;
+      --primary-light: #a78bfa;
+      --primary-dark: #7c3aed;
+      --secondary: #60a5fa;
+      --secondary-light: #93c5fd;
+      --background: #111827;
+      --surface: #1f2937;
+      --text-primary: #f9fafb;
+      --text-secondary: #d1d5db;
+      --border: #374151;
+      --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+      --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.3), 0 4px 6px -2px rgba(0, 0, 0, 0.2);
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
     body {
       font-family: 'Inter', sans-serif;
-      margin: 0;
-      padding: 2rem;
       background: var(--background);
-      color: var(--dark);
+      color: var(--text-primary);
       transition: background 0.3s, color 0.3s;
+      line-height: 1.6;
+      min-height: 100vh;
+      padding: 2rem 1rem;
     }
-    h2 {
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+    }
+
+    header {
       text-align: center;
-      margin-bottom: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.75rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .logo-icon {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+    }
+
+    h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent;
+    }
+
+    .subtitle {
+      color: var(--text-secondary);
+      font-size: 1rem;
+      font-weight: 400;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .theme-toggle {
+      position: absolute;
+      top: 1.5rem;
+      right: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      cursor: pointer;
+      padding: 0.5rem 1rem;
+      background: var(--surface);
+      border-radius: 50px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border);
+      transition: all 0.2s;
+    }
+
+    .theme-toggle:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .theme-toggle input {
+      display: none;
+    }
+
+    .toggle-slider {
+      position: relative;
+      width: 48px;
+      height: 24px;
+      background: var(--border);
+      border-radius: 24px;
+      transition: background 0.3s;
+    }
+
+    .toggle-slider::before {
+      content: '';
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: white;
+      top: 2px;
+      left: 2px;
+      transition: transform 0.3s;
+    }
+
+    .theme-toggle input:checked + .toggle-slider {
+      background: var(--primary);
+    }
+
+    .theme-toggle input:checked + .toggle-slider::before {
+      transform: translateX(24px);
+    }
+
+    .app-container {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+
+    @media (min-width: 1024px) {
+      .app-container {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+
+    .form-section {
+      background: var(--surface);
+      border-radius: 16px;
+      padding: 2rem;
+      box-shadow: var(--shadow);
+      transition: background 0.3s, box-shadow 0.3s;
+    }
+
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 1.5rem;
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+
+    .section-title svg {
+      width: 20px;
+      height: 20px;
       color: var(--primary);
     }
-    .form-section {
-      background: white;
-      border-radius: 12px;
-      padding: 2rem;
-      max-width: 850px;
-      margin: auto;
-      box-shadow: 0 10px 15px rgba(0, 0, 0, 0.05);
-      transition: background 0.3s, color 0.3s;
+
+    .form-group {
+      margin-bottom: 1.5rem;
     }
+
     label {
       display: block;
-      margin-top: 1rem;
-      font-weight: 600;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: var(--text-primary);
     }
+
+    .input-hint {
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      margin-top: 0.25rem;
+    }
+
     select, textarea, input[type="file"], input[type="range"], input[type="text"] {
-      margin-top: 0.5rem;
       width: 100%;
-      padding: 0.75rem;
-      border: 1px solid #d1d5db;
-      border-radius: 8px;
+      padding: 0.75rem 1rem;
+      border: 1px solid var(--border);
+      border-radius: 10px;
       font-size: 1rem;
-      background-color: #fff;
-      color: #1f2937;
-      transition: background 0.3s, color 0.3s, border 0.3s;
+      background-color: var(--surface);
+      color: var(--text-primary);
+      transition: all 0.2s;
     }
-    input[type="range"] { padding: 0; }
-    textarea { height: 100px; resize: vertical; }
+
+    select:focus, textarea:focus, input[type="text"]:focus {
+      outline: none;
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.1);
+    }
+
+    input[type="range"] {
+      padding: 0;
+      height: 6px;
+      border-radius: 3px;
+      background: var(--border);
+      -webkit-appearance: none;
+    }
+
+    input[type="range"]::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: var(--primary);
+      cursor: pointer;
+    }
+
+    .range-value {
+      display: inline-block;
+      margin-left: 0.5rem;
+      font-weight: 600;
+      color: var(--primary);
+    }
+
     .button-group {
-      margin-top: 1.5rem;
       display: flex;
       gap: 1rem;
       flex-wrap: wrap;
+      margin-top: 2rem;
     }
+
     button {
-      background-color: var(--primary);
+      background: var(--primary);
       color: white;
-      padding: 0.75rem 1.5rem;
+      padding: 0.875rem 1.5rem;
       border: none;
-      border-radius: 8px;
+      border-radius: 10px;
       font-weight: 600;
       cursor: pointer;
-      transition: background 0.2s;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+      flex: 1;
+      min-width: 160px;
     }
-    button:hover { background-color: #6d28d9; }
+
+    button:hover {
+      background: var(--primary-dark);
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    button.secondary {
+      background: var(--secondary);
+    }
+
+    button.secondary:hover {
+      background: var(--secondary-light);
+    }
+
+    button.outline {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-primary);
+    }
+
+    button.outline:hover {
+      background: var(--surface);
+      border-color: var(--primary);
+      color: var(--primary);
+    }
+
     #qr-codes {
       display: grid;
       grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
       gap: 1.5rem;
-      margin-top: 2rem;
-      max-width: 1200px;
-      margin-inline: auto;
     }
+
     .qr-container {
-      background: white;
+      background: var(--surface);
       border-radius: 12px;
-      padding: 1rem;
+      padding: 1.5rem;
       text-align: center;
-      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05);
-      transition: background 0.3s;
+      box-shadow: var(--shadow);
+      transition: all 0.3s;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
+
+    .qr-container:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-lg);
+    }
+
     .qr-container p {
       word-break: break-word;
-      font-size: 0.875rem;
-      margin-top: 0.5rem;
+      font-size: 0.75rem;
+      margin-top: 1rem;
+      color: var(--text-secondary);
+      max-height: 60px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      width: 100%;
     }
+
     .qr-container button {
-      background-color: var(--secondary);
-      margin-top: 0.5rem;
+      margin-top: 1rem;
+      width: 100%;
+      padding: 0.5rem;
+      font-size: 0.875rem;
     }
-    .qr-container button:hover {
-      background-color: #2563eb;
-    }
+
     #loading {
       display: none;
       text-align: center;
       margin-top: 1rem;
     }
+
     .spinner {
       margin: 0 auto;
-      border: 6px solid #eee;
-      border-top: 6px solid var(--primary);
+      border: 4px solid rgba(124, 58, 237, 0.2);
+      border-top: 4px solid var(--primary);
       border-radius: 50%;
-      width: 48px;
-      height: 48px;
+      width: 40px;
+      height: 40px;
       animation: spin 0.8s linear infinite;
     }
+
     @keyframes spin {
       to { transform: rotate(360deg); }
     }
+
     footer {
       text-align: center;
       margin-top: 4rem;
+      padding-top: 2rem;
+      border-top: 1px solid var(--border);
+      color: var(--text-secondary);
       font-size: 0.9rem;
-      color: #6b7280;
-      transition: color 0.3s;
     }
-    footer hr {
-      margin-bottom: 1rem;
-      border: none;
-      border-top: 1px solid #e5e7eb;
-      transition: border 0.3s;
+
+    footer a {
+      color: var(--primary);
+      text-decoration: none;
+      font-weight: 600;
     }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    .footer-logo {
+      color: var(--primary);
+      font-weight: 700;
+    }
+
     .qr-container > div canvas {
       width: 150px !important;
       height: 150px !important;
     }
 
-    /* === Dark Mode Styles === */
-    .dark-mode {
-      background-color: #111827;
-      color: #f9fafb;
+    .empty-state {
+      text-align: center;
+      padding: 3rem 2rem;
+      color: var(--text-secondary);
     }
 
-    .dark-mode .form-section,
-    .dark-mode .qr-container {
-      background-color: #1f2937;
-      color: #f9fafb;
+    .empty-state svg {
+      width: 64px;
+      height: 64px;
+      margin-bottom: 1rem;
+      opacity: 0.5;
     }
 
-    .dark-mode select,
-    .dark-mode textarea,
-    .dark-mode input[type="file"],
-    .dark-mode input[type="range"],
-    .dark-mode input[type="text"] {
-      background-color: #374151;
-      color: #f9fafb;
-      border-color: #4b5563;
+    .empty-state h3 {
+      font-size: 1.25rem;
+      margin-bottom: 0.5rem;
     }
 
-    .dark-mode button {
-      background-color: var(--primary);
-      color: #fff;
-    }
-
-    .dark-mode .qr-container button {
-      background-color: var(--secondary);
-    }
-
-    .dark-mode footer {
-      color: #9ca3af;
-    }
-
-    .dark-mode footer hr {
-      border-top-color: #374151;
+    .empty-state p {
+      max-width: 400px;
+      margin: 0 auto;
     }
   </style>
 </head>
 <body>
-  <h2>🚀 Prcuisa QR Code Generator</h2>
+  <div class="container">
+    <header>
+      <div class="logo">
+        <div class="logo-icon">P</div>
+        <h1>Prcuisa QR Code Generator</h1>
+      </div>
+      <p class="subtitle">Create beautiful, customizable QR codes for your marketing campaigns and business needs</p>
+    </header>
 
-  <div style="text-align: center; margin-bottom: 1rem;">
-    <label>
-      <input type="checkbox" id="themeToggle" />
-      🌙 Aktifkan Dark Mode
+    <label class="theme-toggle">
+      <input type="checkbox" id="themeToggle">
+      <span class="toggle-slider"></span>
+      <span>Dark Mode</span>
     </label>
-  </div>
 
-  <div class="form-section">
-    <label for="logoInput">🖼️ Upload Logo (opsional)</label>
-    <input type="file" id="logoInput" accept="image/*" />
+    <div class="app-container">
+      <div class="form-section">
+        <h2 class="section-title">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+          </svg>
+          Configuration
+        </h2>
 
-    <label for="logoSizeRange">🔧 Ukuran Logo (max 80%)</label>
-    <input type="range" id="logoSizeRange" min="0.05" max="0.8" step="0.01" value="0.5" />
-    <small>Ukuran Logo: <span id="logoSizeLabel">50%</span></small>
+        <div class="form-group">
+          <label for="logoInput">Logo Image (Optional)</label>
+          <input type="file" id="logoInput" accept="image/*">
+          <p class="input-hint">Add your logo to customize the QR code</p>
+        </div>
 
-    <label for="sizeSelect">📏 Ukuran QR Code (px)</label>
-    <select id="sizeSelect">
-      <option value="200">200 x 200</option>
-      <option value="300">300 x 300</option>
-      <option value="500">500 x 500 (HD)</option>
-      <option value="1000" selected>1000 x 1000 (Ultra HD)</option>
-    </select>
+        <div class="form-group">
+          <label for="logoSizeRange">Logo Size <span class="range-value" id="logoSizeLabel">50%</span></label>
+          <input type="range" id="logoSizeRange" min="0.05" max="0.8" step="0.01" value="0.5">
+          <p class="input-hint">Adjust the size of your logo relative to the QR code</p>
+        </div>
 
-    <label for="dotStyleSelect">🎨 Gaya Titik QR</label>
-    <select id="dotStyleSelect">
-      <option value="rounded" selected>Rounded</option>
-      <option value="dots">Dots</option>
-      <option value="classy">Classy</option>
-      <option value="square">Square</option>
-    </select>
+        <div class="form-group">
+          <label for="sizeSelect">QR Code Size</label>
+          <select id="sizeSelect">
+            <option value="200">200 x 200</option>
+            <option value="300">300 x 300</option>
+            <option value="500">500 x 500 (HD)</option>
+            <option value="1000" selected>1000 x 1000 (Ultra HD)</option>
+          </select>
+        </div>
 
-    <label for="cornerStyleSelect">🧩 Gaya Sudut QR</label>
-    <select id="cornerStyleSelect">
-      <option value="square">Square</option>
-      <option value="dot">Dot</option>
-      <option value="extra-rounded" selected>Extra Rounded</option>
-    </select>
+        <div class="form-group">
+          <label for="dotStyleSelect">Dot Style</label>
+          <select id="dotStyleSelect">
+            <option value="rounded" selected>Rounded</option>
+            <option value="dots">Dots</option>
+            <option value="classy">Classy</option>
+            <option value="square">Square</option>
+          </select>
+        </div>
 
-    <label for="urlPattern">🧬 Pola Dynamic URL https://bmri.id/reflivin?deep_link_sub1={param}&deep_link_sub2={param}</label>
-    <input type="text" id="urlPattern" placeholder="https://bmri.id/reflivin?deep_link_sub1={cabang}&deep_link_sub2={referral}" />
+        <div class="form-group">
+          <label for="cornerStyleSelect">Corner Style</label>
+          <select id="cornerStyleSelect">
+            <option value="square">Square</option>
+            <option value="dot">Dot</option>
+            <option value="extra-rounded" selected>Extra Rounded</option>
+          </select>
+        </div>
 
-    <label for="csvInput">📄 Data CSV (dipisah koma, satu per baris)</label>
-    <textarea id="csvInput" placeholder="branch1,codeA&#10;branch2,codeB&#10;dst"></textarea>
-    <small>Kolom harus cocok dengan placeholder dalam pola</small>
+        <h2 class="section-title" style="margin-top: 2rem;">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+          </svg>
+          URL Data
+        </h2>
 
-    <label for="urlInput">🔗 Atau Masukkan URL Manual (satu per baris)</label>
-    <textarea id="urlInput" placeholder="https://bmri.id/testdp?deep_link_sub1=11111&deep_link_sub2=121212&#10;https://bmri.id/testdp?deep_link_sub1=11111&deep_link_sub2=121212&#10;dst"></textarea>
+        <div class="form-group">
+          <label for="urlPattern">Dynamic URL Pattern</label>
+          <input type="text" id="urlPattern" placeholder="https://bmri.id/reflivin?deep_link_sub1={param}&deep_link_sub2={param}">
+          <p class="input-hint">Use {param} as placeholders for dynamic values</p>
+        </div>
 
-    <div class="button-group">
-      <button onclick="generateQRCodes()">🎨 Generate QR Codes</button>
-      <button onclick="downloadAll()">⬇️ Download All</button>
-      <button onclick="downloadAllZip()">📦 Download ZIP</button>
+        <div class="form-group">
+          <label for="csvInput">CSV Data</label>
+          <textarea id="csvInput" placeholder="branch1,codeA
+branch2,codeB
+..."></textarea>
+          <p class="input-hint">Comma-separated values, one row per QR code</p>
+        </div>
+
+        <div class="form-group">
+          <label for="urlInput">Manual URLs (Alternative)</label>
+          <textarea id="urlInput" placeholder="https://bmri.id/testdp?deep_link_sub1=11111&deep_link_sub2=121212
+https://bmri.id/testdp?deep_link_sub1=22222&deep_link_sub2=232323
+..."></textarea>
+          <p class="input-hint">One URL per line</p>
+        </div>
+
+        <div class="button-group">
+          <button onclick="generateQRCodes()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+            </svg>
+            Generate QR Codes
+          </button>
+          <button class="secondary" onclick="downloadAll()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+            Download All
+          </button>
+          <button class="outline" onclick="downloadAllZip()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3M3 17V7a2 2 0 012-2h6l2 2h6a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2z" />
+            </svg>
+            Download ZIP
+          </button>
+        </div>
+
+        <div id="loading">
+          <div class="spinner"></div>
+          <p>Generating QR Codes...</p>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <h2 class="section-title">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+          </svg>
+          Generated QR Codes
+        </h2>
+
+        <div id="qr-codes">
+          <div class="empty-state">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z" />
+            </svg>
+            <h3>No QR Codes Yet</h3>
+            <p>Configure your settings and click "Generate QR Codes" to create your first QR code</p>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <div id="loading">
-      <div class="spinner"></div>
-      <p>Menghasilkan QR Code...</p>
-    </div>
+    <footer>
+      <p>© 2025 · Design and Develop by <a href="https://www.prcuisa.com/" class="footer-logo">Prcuisa Labs</a> — <span style="color:var(--secondary);">Ecsa Ahcri Pracasa</span></p>
+    </footer>
   </div>
-
-  <div id="qr-codes"></div>
-
-  <footer>
-    <hr />
-    © 2025 · Design and Develop by <strong style="color:#7c3aed;"><a href="https://www.prcuisa.com/">Prcuisa Labs</a></strong> — <span style="color:#3b82f6;">Ecsa Ahcri Pracasa</span>
-  </footer>
 
   <script>
     let logoDataURL = null;
@@ -286,7 +600,7 @@
       } else if (staticUrls) {
         urls = staticUrls.split("\n").map(u => u.trim()).filter(u => u !== "");
       } else {
-        alert("Masukkan URL langsung atau isi pola + data CSV!");
+        alert("Please enter either a URL pattern with CSV data or direct URLs!");
         return;
       }
 
@@ -359,7 +673,7 @@
 
     async function downloadAllZip() {
       if (qrCodes.length === 0) {
-        alert("Belum ada QR code untuk diunduh.");
+        alert("No QR codes available for download.");
         return;
       }
 
