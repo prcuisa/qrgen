@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>QRcraft — QR Code Generator Full Fitur</title>
+  <meta name="description" content="Generator QR code lengkap: URL, WiFi, vCard, WhatsApp, dan lainnya. Kustom warna, gaya, logo. Unduh PNG, SVG, JPEG." />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;450;500;600&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="scanline" aria-hidden="true"></div>
+
+  <header class="site-header">
+    <div class="brand">
+      <span class="brand-mark" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="26" height="26">
+          <rect x="1"  y="1"  width="7" height="7" rx="1.4"/>
+          <rect x="3"  y="3"  width="3" height="3" rx="0.6" class="mk-hole"/>
+          <rect x="16" y="1"  width="7" height="7" rx="1.4"/>
+          <rect x="18" y="3"  width="3" height="3" rx="0.6" class="mk-hole"/>
+          <rect x="1"  y="16" width="7" height="7" rx="1.4"/>
+          <rect x="3"  y="18" width="3" height="3" rx="0.6" class="mk-hole"/>
+          <rect x="11" y="1"  width="2" height="2"/>
+          <rect x="11" y="5"  width="2" height="2"/>
+          <rect x="16" y="11" width="2" height="2"/>
+          <rect x="20" y="11" width="3" height="2"/>
+          <rect x="11" y="11" width="2" height="2"/>
+          <rect x="11" y="16" width="2" height="2"/>
+          <rect x="15" y="15" width="2" height="2"/>
+          <rect x="19" y="15" width="4" height="2"/>
+          <rect x="11" y="20" width="2" height="3"/>
+          <rect x="15" y="20" width="2" height="3"/>
+          <rect x="20" y="19" width="3" height="4"/>
+        </svg>
+      </span>
+      <div class="brand-text">
+        <span class="brand-name">QR<span class="accent">craft</span></span>
+        <span class="brand-tag">generator · serverless</span>
+      </div>
+    </div>
+    <div class="header-meta">
+      <span class="dot-live"></span> render lokal di browser · data tidak dikirim ke server
+    </div>
+  </header>
+
+  <main class="workspace">
+    <!-- ============ PANEL KIRI: KONTROL ============ -->
+    <section class="panel controls" aria-label="Pengaturan QR code">
+
+      <div class="section-head">
+        <span class="idx">01</span>
+        <h2>Isi Konten</h2>
+      </div>
+
+      <!-- Pemilih tipe konten -->
+      <div class="type-grid" id="typeGrid" role="tablist" aria-label="Tipe konten">
+        <button class="type-chip is-active" data-type="url" role="tab">🔗 URL</button>
+        <button class="type-chip" data-type="text" role="tab">📝 Teks</button>
+        <button class="type-chip" data-type="email" role="tab">✉️ Email</button>
+        <button class="type-chip" data-type="phone" role="tab">📞 Telepon</button>
+        <button class="type-chip" data-type="sms" role="tab">💬 SMS</button>
+        <button class="type-chip" data-type="whatsapp" role="tab">🟢 WhatsApp</button>
+        <button class="type-chip" data-type="wifi" role="tab">📶 WiFi</button>
+        <button class="type-chip" data-type="vcard" role="tab">👤 vCard</button>
+        <button class="type-chip" data-type="geo" role="tab">📍 Lokasi</button>
+        <button class="type-chip" data-type="event" role="tab">📅 Event</button>
+      </div>
+
+      <!-- Form dinamis per tipe -->
+      <div class="forms" id="forms">
+        <!-- URL -->
+        <div class="form is-active" data-form="url">
+          <label class="field">
+            <span class="lbl">Alamat website</span>
+            <input type="url" id="url_value" placeholder="https://contoh.com" value="https://" />
+          </label>
+        </div>
+
+        <!-- TEXT -->
+        <div class="form" data-form="text">
+          <label class="field">
+            <span class="lbl">Teks bebas</span>
+            <textarea id="text_value" rows="4" placeholder="Ketik teks apa pun di sini..."></textarea>
+          </label>
+        </div>
+
+        <!-- EMAIL -->
+        <div class="form" data-form="email">
+          <label class="field">
+            <span class="lbl">Alamat email tujuan</span>
+            <input type="email" id="email_to" placeholder="nama@email.com" />
+          </label>
+          <label class="field">
+            <span class="lbl">Subjek</span>
+            <input type="text" id="email_subject" placeholder="Subjek email" />
+          </label>
+          <label class="field">
+            <span class="lbl">Isi pesan</span>
+            <textarea id="email_body" rows="3" placeholder="Isi pesan..."></textarea>
+          </label>
+        </div>
+
+        <!-- PHONE -->
+        <div class="form" data-form="phone">
+          <label class="field">
+            <span class="lbl">Nomor telepon</span>
+            <input type="tel" id="phone_value" placeholder="+62812xxxxxxx" />
+          </label>
+        </div>
+
+        <!-- SMS -->
+        <div class="form" data-form="sms">
+          <label class="field">
+            <span class="lbl">Nomor tujuan</span>
+            <input type="tel" id="sms_number" placeholder="+62812xxxxxxx" />
+          </label>
+          <label class="field">
+            <span class="lbl">Isi pesan</span>
+            <textarea id="sms_body" rows="3" placeholder="Isi SMS..."></textarea>
+          </label>
+        </div>
+
+        <!-- WHATSAPP -->
+        <div class="form" data-form="whatsapp">
+          <label class="field">
+            <span class="lbl">Nomor WhatsApp (pakai kode negara)</span>
+            <input type="tel" id="wa_number" placeholder="628123456789" />
+            <span class="hint">Tanpa tanda + dan tanpa 0 di depan. Contoh: 628123456789</span>
+          </label>
+          <label class="field">
+            <span class="lbl">Pesan awal (opsional)</span>
+            <textarea id="wa_body" rows="3" placeholder="Halo, saya ingin bertanya..."></textarea>
+          </label>
+        </div>
+
+        <!-- WIFI -->
+        <div class="form" data-form="wifi">
+          <label class="field">
+            <span class="lbl">Nama jaringan (SSID)</span>
+            <input type="text" id="wifi_ssid" placeholder="Nama WiFi" />
+          </label>
+          <label class="field">
+            <span class="lbl">Kata sandi</span>
+            <input type="text" id="wifi_password" placeholder="Password WiFi" />
+          </label>
+          <div class="field-row">
+            <label class="field">
+              <span class="lbl">Enkripsi</span>
+              <select id="wifi_encryption">
+                <option value="WPA">WPA/WPA2</option>
+                <option value="WEP">WEP</option>
+                <option value="nopass">Tanpa sandi</option>
+              </select>
+            </label>
+            <label class="field checkbox-field">
+              <input type="checkbox" id="wifi_hidden" />
+              <span class="lbl">Jaringan tersembunyi</span>
+            </label>
+          </div>
+        </div>
+
+        <!-- VCARD -->
+        <div class="form" data-form="vcard">
+          <div class="field-row">
+            <label class="field">
+              <span class="lbl">Nama depan</span>
+              <input type="text" id="vc_first" placeholder="Budi" />
+            </label>
+            <label class="field">
+              <span class="lbl">Nama belakang</span>
+              <input type="text" id="vc_last" placeholder="Santoso" />
+            </label>
+          </div>
+          <label class="field">
+            <span class="lbl">Perusahaan</span>
+            <input type="text" id="vc_org" placeholder="PT Contoh Indonesia" />
+          </label>
+          <label class="field">
+            <span class="lbl">Jabatan</span>
+            <input type="text" id="vc_title" placeholder="Marketing Manager" />
+          </label>
+          <div class="field-row">
+            <label class="field">
+              <span class="lbl">Telepon</span>
+              <input type="tel" id="vc_phone" placeholder="+62812xxxxxxx" />
+            </label>
+            <label class="field">
+              <span class="lbl">Email</span>
+              <input type="email" id="vc_email" placeholder="nama@email.com" />
+            </label>
+          </div>
+          <label class="field">
+            <span class="lbl">Website</span>
+            <input type="url" id="vc_web" placeholder="https://contoh.com" />
+          </label>
+          <label class="field">
+            <span class="lbl">Alamat</span>
+            <input type="text" id="vc_address" placeholder="Jl. Contoh No. 1, Jakarta" />
+          </label>
+        </div>
+
+        <!-- GEO -->
+        <div class="form" data-form="geo">
+          <div class="field-row">
+            <label class="field">
+              <span class="lbl">Latitude</span>
+              <input type="text" id="geo_lat" placeholder="-6.200000" />
+            </label>
+            <label class="field">
+              <span class="lbl">Longitude</span>
+              <input type="text" id="geo_lng" placeholder="106.816666" />
+            </label>
+          </div>
+          <button type="button" class="btn-ghost" id="geo_locate">📍 Pakai lokasi saya sekarang</button>
+        </div>
+
+        <!-- EVENT -->
+        <div class="form" data-form="event">
+          <label class="field">
+            <span class="lbl">Judul acara</span>
+            <input type="text" id="ev_title" placeholder="Rapat Tim Marketing" />
+          </label>
+          <label class="field">
+            <span class="lbl">Lokasi</span>
+            <input type="text" id="ev_location" placeholder="Ruang Meeting Lt. 3" />
+          </label>
+          <div class="field-row">
+            <label class="field">
+              <span class="lbl">Mulai</span>
+              <input type="datetime-local" id="ev_start" />
+            </label>
+            <label class="field">
+              <span class="lbl">Selesai</span>
+              <input type="datetime-local" id="ev_end" />
+            </label>
+          </div>
+          <label class="field">
+            <span class="lbl">Deskripsi</span>
+            <textarea id="ev_desc" rows="2" placeholder="Catatan acara..."></textarea>
+          </label>
+        </div>
+      </div>
+
+      <!-- ====== KUSTOMISASI ====== -->
+      <div class="section-head">
+        <span class="idx">02</span>
+        <h2>Gaya &amp; Warna</h2>
+      </div>
+
+      <!-- Presets -->
+      <div class="preset-row" id="presetRow">
+        <span class="preset-label">Preset cepat</span>
+        <div class="preset-chips">
+          <button class="preset" data-preset="classic" title="Klasik">Klasik</button>
+          <button class="preset" data-preset="rounded" title="Bulat">Bulat</button>
+          <button class="preset" data-preset="dots" title="Titik">Titik</button>
+          <button class="preset" data-preset="neon" title="Neon">Neon</button>
+          <button class="preset" data-preset="sunset" title="Sunset">Sunset</button>
+          <button class="preset" data-preset="mono" title="Mono">Mono</button>
+        </div>
+      </div>
+
+      <!-- Bentuk -->
+      <div class="opt-group">
+        <div class="field-row">
+          <label class="field">
+            <span class="lbl">Bentuk piksel</span>
+            <select id="dotType">
+              <option value="square">Kotak</option>
+              <option value="rounded">Bulat</option>
+              <option value="dots">Titik</option>
+              <option value="extra-rounded">Ekstra bulat</option>
+              <option value="classy">Classy</option>
+              <option value="classy-rounded">Classy bulat</option>
+            </select>
+          </label>
+          <label class="field">
+            <span class="lbl">Sudut (kotak)</span>
+            <select id="cornerSquareType">
+              <option value="square">Kotak</option>
+              <option value="dot">Titik</option>
+              <option value="extra-rounded">Ekstra bulat</option>
+            </select>
+          </label>
+          <label class="field">
+            <span class="lbl">Sudut (titik)</span>
+            <select id="cornerDotType">
+              <option value="square">Kotak</option>
+              <option value="dot">Titik</option>
+            </select>
+          </label>
+        </div>
+      </div>
+
+      <!-- Warna -->
+      <div class="opt-group">
+        <div class="color-mode">
+          <span class="lbl">Warna piksel</span>
+          <div class="seg">
+            <button class="seg-btn is-active" data-fillmode="solid">Solid</button>
+            <button class="seg-btn" data-fillmode="gradient">Gradien</button>
+          </div>
+        </div>
+
+        <div class="field-row" id="fgSolidRow">
+          <label class="field color-field">
+            <span class="lbl">Warna depan</span>
+            <span class="color-input">
+              <input type="color" id="fgColor" value="#12141a" />
+              <input type="text" id="fgColorHex" value="#12141a" class="hex" />
+            </span>
+          </label>
+        </div>
+
+        <div class="field-row hidden" id="fgGradientRow">
+          <label class="field color-field">
+            <span class="lbl">Gradien 1</span>
+            <span class="color-input">
+              <input type="color" id="gradColor1" value="#5b4bff" />
+              <input type="text" id="gradColor1Hex" value="#5b4bff" class="hex" />
+            </span>
+          </label>
+          <label class="field color-field">
+            <span class="lbl">Gradien 2</span>
+            <span class="color-input">
+              <input type="color" id="gradColor2" value="#12141a" />
+              <input type="text" id="gradColor2Hex" value="#12141a" class="hex" />
+            </span>
+          </label>
+          <label class="field">
+            <span class="lbl">Tipe</span>
+            <select id="gradType">
+              <option value="linear">Linear</option>
+              <option value="radial">Radial</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="field-row">
+          <label class="field color-field">
+            <span class="lbl">Warna latar</span>
+            <span class="color-input">
+              <input type="color" id="bgColor" value="#ffffff" />
+              <input type="text" id="bgColorHex" value="#ffffff" class="hex" />
+            </span>
+          </label>
+          <label class="field checkbox-field">
+            <input type="checkbox" id="bgTransparent" />
+            <span class="lbl">Latar transparan</span>
+          </label>
+        </div>
+      </div>
+
+      <!-- Logo -->
+      <div class="section-head">
+        <span class="idx">03</span>
+        <h2>Logo &amp; Ukuran</h2>
+      </div>
+
+      <div class="opt-group">
+        <div class="logo-row">
+          <label class="btn-ghost file-btn">
+            🖼️ Unggah logo
+            <input type="file" id="logoFile" accept="image/*" hidden />
+          </label>
+          <button class="btn-ghost hidden" id="logoRemove">Hapus logo</button>
+          <span class="logo-name" id="logoName"></span>
+        </div>
+        <div class="field-row" id="logoOpts" style="display:none">
+          <label class="field slider-field">
+            <span class="lbl">Ukuran logo <b id="logoSizeVal">40%</b></span>
+            <input type="range" id="logoSize" min="10" max="60" value="40" />
+          </label>
+          <label class="field checkbox-field">
+            <input type="checkbox" id="logoHideDots" checked />
+            <span class="lbl">Sembunyikan piksel di belakang logo</span>
+          </label>
+        </div>
+      </div>
+
+      <div class="opt-group">
+        <div class="field-row">
+          <label class="field slider-field">
+            <span class="lbl">Ukuran <b id="sizeVal">320 px</b></span>
+            <input type="range" id="qrSize" min="160" max="1024" step="8" value="320" />
+          </label>
+          <label class="field slider-field">
+            <span class="lbl">Margin <b id="marginVal">16</b></span>
+            <input type="range" id="qrMargin" min="0" max="60" value="16" />
+          </label>
+        </div>
+        <label class="field">
+          <span class="lbl">Koreksi error <span class="hint-inline">makin tinggi makin tahan rusak, tapi lebih padat</span></span>
+          <select id="ecLevel">
+            <option value="L">L — 7%</option>
+            <option value="M">M — 15%</option>
+            <option value="Q" selected>Q — 25%</option>
+            <option value="H">H — 30% (disarankan jika ada logo)</option>
+          </select>
+        </label>
+      </div>
+    </section>
+
+    <!-- ============ PANEL KANAN: PREVIEW ============ -->
+    <aside class="panel preview-panel" aria-label="Pratinjau QR code">
+      <div class="preview-sticky">
+        <div class="preview-frame">
+          <div class="preview-corner tl"></div>
+          <div class="preview-corner tr"></div>
+          <div class="preview-corner bl"></div>
+          <div class="preview-corner br"></div>
+          <div id="qrCanvas" class="qr-canvas"></div>
+        </div>
+
+        <p class="preview-caption" id="previewCaption">Pratinjau diperbarui otomatis</p>
+
+        <div class="download-group">
+          <div class="dl-primary">
+            <button class="btn-primary" id="dlPng">⬇ PNG</button>
+            <button class="btn-primary alt" id="dlSvg">⬇ SVG</button>
+          </div>
+          <div class="dl-secondary">
+            <button class="btn-ghost sm" id="dlJpeg">JPEG</button>
+            <button class="btn-ghost sm" id="dlWebp">WebP</button>
+            <button class="btn-ghost sm" id="copyImg">Salin gambar</button>
+          </div>
+        </div>
+
+        <div class="tips">
+          <p><b>Tips uji:</b> selalu scan dulu sebelum dicetak. Kontras tinggi (gelap di terang) & error correction H bikin QR lebih tahan.</p>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <footer class="site-footer">
+    <span>QRcraft — dibuat untuk deploy static di Vercel. Semua proses berjalan di perangkat kamu.</span>
+  </footer>
+
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <!-- Library QR (client-side, tanpa server) -->
+  <script src="https://cdn.jsdelivr.net/npm/qr-code-styling@1.9.2/lib/qr-code-styling.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>

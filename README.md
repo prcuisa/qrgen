@@ -1,17 +1,22 @@
-# Prcuisa QR Code Generator
+# QRcraft — QR Code Generator Full Fitur
 
-Prcuisa QR Generator adalah tool visual untuk membuat QR Code dengan logo dan pola URL dinamis.
-
-## Cara Deploy
-
-1. Clone repo ini ke GitHub
-2. Hubungkan dengan Vercel
-3. Deploy sebagai static project (gunakan `index.html` utama)
+Generator QR code lengkap, berjalan **100% di browser** (client-side). Tidak butuh backend, tidak ada data yang dikirim ke server — cocok untuk deploy **static di Vercel** (gratis, tanpa maintenance).
 
 ## Fitur
 
-- Generate QR dari pola URL + CSV
-- Logo bisa custom + ukuran bisa diatur
-- Style QR (dots, rounded, classy, square)
-- Export QR satuan atau ZIP
-- Dark mode switch
+**10 tipe konten**
+URL · Teks · Email · Telepon · SMS · WhatsApp · WiFi · vCard (kontak) · Lokasi (GPS) · Event (kalender)
+
+**Kustomisasi**
+- Bentuk piksel: kotak, bulat, titik, extra-rounded, classy, classy-rounded
+- Gaya sudut (finder pattern) terpisah untuk kotak & titik
+- Warna solid atau **gradien** (linear/radial)
+- Latar solid atau transparan
+- Upload **logo** di tengah + atur ukuran & sembunyikan piksel di baliknya
+- Ukuran (160–1024 px), margin (quiet zone), level koreksi error (L/M/Q/H)
+- 6 preset cepat: Klasik, Bulat, Titik, Neon, Sunset, Mono
+
+**Ekspor**
+Unduh **PNG · SVG · JPEG · WebP**, atau salin gambar langsung ke clipboard.
+
+## Struktur file
