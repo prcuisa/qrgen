@@ -54,7 +54,6 @@ body {
   z-index: 100;
   animation: scan 6.5s linear infinite;
   pointer-events: none;
-  will-change: transform;
 }
 @keyframes scan {
   0%   { transform: translateY(0); opacity: 0; }

@@ -36,6 +36,7 @@
 
   function fmtICSDate(dtLocal) {
     if (!dtLocal) return "";
+    // "2026-07-21T14:30" -> "20260721T143000"
     return dtLocal.replace(/[-:]/g, "").replace("T", "T") + "00";
   }
 
@@ -131,6 +132,7 @@
     const bgTransparent = $("#bgTransparent").checked;
     const bgColor = bgTransparent ? "rgba(0,0,0,0)" : $("#bgColor").value;
 
+    // dots color / gradient
     let dotsOptions = { type: dotType };
     let cornersSquareOptions = { type: cornerSquareType };
     let cornersDotOptions = { type: cornerDotType };
@@ -283,6 +285,7 @@
       $("#logoName").textContent = file.name;
       $("#logoRemove").classList.remove("hidden");
       $("#logoOpts").style.display = "flex";
+      // saran naikkan koreksi error ke H bila ada logo
       if ($("#ecLevel").value === "L" || $("#ecLevel").value === "M") $("#ecLevel").value = "H";
       update();
     };
@@ -320,6 +323,7 @@
       $("#cornerSquareType").value = p.cs;
       $("#cornerDotType").value = p.cd;
 
+      // set fill mode
       $$(".seg-btn").forEach((b) => b.classList.toggle("is-active", b.dataset.fillmode === p.mode));
       const grad = p.mode === "gradient";
       $("#fgSolidRow").classList.toggle("hidden", grad);
